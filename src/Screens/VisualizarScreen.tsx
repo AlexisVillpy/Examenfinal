@@ -4,13 +4,15 @@ import {
   FlatList,
   RefreshControl,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 import { useNavigation, NavigationProp } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import Ionicons from 'react-native-vector-icons/Ionicons'; // Importa Ionicons
 import firestore from '@react-native-firebase/firestore';
-import { Usuario } from '../data/types'; // Asegúrate de que la interfaz Usuario esté importada correctamente
+import { Usuario } from '../data/types';
 import { RootStackParamList } from '../Navigators/Navigator';
 import { BottomTabParamList } from '../Navigators/HomeNavigator';
 import styles from '../Styles/Styles';
@@ -19,21 +21,21 @@ export type VisualizarScreenProps = NativeStackScreenProps<BottomTabParamList, '
 
 const VisualizarScreen: React.FC<VisualizarScreenProps> = ({}) => {
   const [cargando, setCargando] = useState(false);
-  const [registro, setRegistro] = useState<Usuario[]>([]); // Establece el estado como Usuario[]
+  const [registro, setRegistro] = useState<Usuario[]>([]);
+  const [searchText, setSearchText] = useState('');
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
 
-  // Cargar datos desde Firestore
   const cargarItems = async () => {
     setCargando(true);
     try {
       const data = await firestore().collection('Alexis').get();
       const reformar = data.docs.map((registro) => ({
-        id: registro.id || '', // Asegúrate de que siempre haya un `id` (si es undefined, usar cadena vacía)
+        id: registro.id || '',
         description: registro.data().description,
         title: registro.data().title,
-        estado: registro.data().estado || 'pendiente', // Asegúrate de que 'estado' tenga un valor literal válido
+        estado: registro.data().estado || 'pendiente',
       }));
-      setRegistro(reformar); // Guardar los datos en el estado
+      setRegistro(reformar);
     } catch (error) {
       console.error('Error al cargar datos:', error);
     } finally {
@@ -44,28 +46,35 @@ const VisualizarScreen: React.FC<VisualizarScreenProps> = ({}) => {
   useEffect(() => {
     cargarItems();
 
-    // Recargar la lista cuando regresas de DetalleScreen
     const unsubscribe = navigation.addListener('focus', () => {
       cargarItems();
     });
 
-    // Limpiar el listener cuando se desmonte el componente
     return unsubscribe;
-  }, [navigation]); // Recalcular cuando cambie la navegación
+  }, [navigation]);
 
-  const renderItem = ({ item }: { item: Usuario }) => (
-    <TouchableOpacity
-      style={styles.item}
-      onPress={() => navigation.navigate('Detalle', { item })}
-    >
-      <Text style={styles.titleItem}>{item.title}</Text>
-      <Text style={styles.description}>{item.description}</Text>
-      {/* Mostrar el estado dinámico */}
-      <View style={styles.estadoContainer}>
-        <Text style={styles.estadoText}>{item.estado}</Text>
-      </View>
-    </TouchableOpacity>
+  const registrosFiltrados = registro.filter((item) =>
+    item.title.toLowerCase().includes(searchText.toLowerCase())
   );
+
+  const renderItem = ({ item }: { item: Usuario }) => {
+    // Define los colores según el estado
+    const estadoColor = item.estado === 'pendiente' ? '#FF6347' : '#008000';
+  
+    return (
+      <TouchableOpacity
+        style={styles.item}
+        onPress={() => navigation.navigate('Detalle', { item })}
+      >
+        <Text style={styles.titleItem}>{item.title}</Text>
+        <Text style={styles.description}>{item.description}</Text>
+        <View style={styles.estadoContainer}>
+          {/* Aplica el color dinámico */}
+          <Text style={[styles.estadoText, { color: estadoColor }]}>{item.estado}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   if (cargando) {
     return (
@@ -78,9 +87,21 @@ const VisualizarScreen: React.FC<VisualizarScreenProps> = ({}) => {
 
   return (
     <View style={styles.container}>
+      {/* Contenedor para el buscador con la lupita */}
+      <View style={styles.searchContainer}>
+        <Ionicons name="search" size={20} color="#555" style={styles.searchIcon} />
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Buscar por título..."
+          placeholderTextColor="#000" 
+          value={searchText}
+          onChangeText={setSearchText}
+        />
+      </View>
+
       <FlatList
-        data={registro}
-        keyExtractor={(item) => item.id || 'default-id'} // Asegúrate de que siempre se pase un `id` de tipo string
+        data={registrosFiltrados}
+        keyExtractor={(item) => item.id || 'default-id'}
         renderItem={renderItem}
         refreshControl={
           <RefreshControl

@@ -14,21 +14,38 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   registerButton: {
-    width: '100%',
+    width: '50%',
     height: 50,
-    backgroundColor: '#6a1b9a', // Morado
-    borderRadius: 25, // Bordes más redondeados para un aspecto más suave
+    backgroundColor: 'gray', // Morado claro (más suave)
+    borderRadius: 25, 
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 20,
-    shadowColor: '#4a148c', // Sombra morada para dar profundidad
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 5, // Sombra en Android
-    borderColor: '#4a148c', // Color del borde
-    borderWidth: 1, // Borde más delgado
+    shadowColor: 'transparent', // Sin sombra para aspecto más plano
+    elevation: 0,               // Sin sombra en Android
+    borderColor: '#d1c4e9',     // Borde morado muy claro
+    borderWidth: 1,
+    opacity: 0.6,               // Opacidad reducida
   },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+    height: 40,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+    height: '100%',
+    color: '#333',
+  },
+  
   
   // Nuevo estilo para el botón "Registrar"
 registerButtonBlue: {
@@ -268,11 +285,11 @@ buttonRegisterBlueText: {
     marginBottom: 20,             // Espaciado debajo
   },
   buttonRegisterText: {
-    color: '#fff',                // Texto blanco
-    fontSize: 16,                 // Tamaño de texto
-    fontWeight: 'bold',           // Texto en negrita
-    textTransform: 'uppercase',   // Texto en mayúsculas
-    textAlign: 'center',          // Texto centrado
+    color: '#e0e0e0',            // Texto gris claro
+    fontSize: 16,
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    textAlign: 'center',
   },
   // Estilos para el botón de estado simulado como un checkbox
 
